@@ -327,14 +327,14 @@ def main():
     print("="*50)
     
     # Configuration
-    CALIBRATION_FILE = 'camera_calibration.pkl'
-    MARKER_SIZE = 0.15  # 50mm markers - ADJUST THIS TO YOUR ACTUAL MARKER SIZE
+    CALIBRATION_FILE = input("Input your calibration file path: ")
+    MARKER_SIZE = float(input("Input your marker size in meters (e.g., 0.15 for 15cm): "))
     
     # Check if calibration file exists
     if not os.path.exists(CALIBRATION_FILE):
         print(f"❌ Calibration file '{CALIBRATION_FILE}' not found!")
-        print("Please run camera_calibration2.py first to generate calibration data.")
-        print("Example: python camera_calibration2.py")
+        print("Please run calibrate.py first to generate calibration data.")
+        print("Example: python calibrate.py")
         return
     
     try:
