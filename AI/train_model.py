@@ -2,7 +2,7 @@ from ultralytics import YOLO
 import os
 
 PRETRAINED_MODEL = "yolov8n.pt"
-DATASET_DIR = "<DIR_PATH>"  # replace with the actual path
+DATASET_DIR = input("Enter your dataset directory path: ")  # replace with the actual path
 
 # Load model (pretrained)
 model = YOLO(PRETRAINED_MODEL)
