@@ -2,7 +2,7 @@
 """
 Unified Camera Calibration System
 Supports: Regular webcams, RoboMaster cameras
-Features: Live calibration, folder processing, auto-capture
+Features: Folder processing, auto-capture
 Compatible with Python 3.8 and OpenCV 4.12.0
 """
 
@@ -65,9 +65,8 @@ class UnifiedCalibrator:
         print("\nCalibration Modes:")
         print("  1 - Use existing folder of images")
         print("  2 - Capture new images (manual/auto capture)")
-        print("  3 - Live calibration (capture + calibrate immediately)")
-        print("  4 - Settings (chessboard size, intervals)")
-        print("  5 - Exit")
+        print("  3 - Settings (chessboard size, intervals)")
+        print("  4 - Exit")
         print("="*60)
         
     def display_camera_menu(self):
@@ -327,81 +326,6 @@ class UnifiedCalibrator:
                 
         return True
         
-    def live_calibration_mode(self):
-        """Live calibration: capture until key press, then calibrate"""
-        print("\n" + "="*60)
-        print("LIVE CALIBRATION MODE")
-        print("="*60)
-        print("Instructions:")
-        print("  - Show chessboard from different angles")
-        print("  - Press 's' when corners detected (green) to save")
-        print("  - Press 'c' when done to CALIBRATE immediately")
-        print("  - Need at least 10 images")
-        print("="*60)
-        
-        cv2.namedWindow("Live Calibration", cv2.WINDOW_NORMAL)
-        
-        # Reset calibration data
-        self.objpoints = []
-        self.imgpoints = []
-        self.images_captured = 0
-        
-        while True:
-            frame = self.read_frame()
-            if frame is None:
-                time.sleep(0.1)
-                continue
-                
-            gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-            ret_corners, corners = cv2.findChessboardCorners(
-                gray, self.chessboard_size, None)
-            
-            display_frame = frame.copy()
-            
-            if ret_corners:
-                corners_refined = cv2.cornerSubPix(
-                    gray, corners, (11, 11), (-1, -1), self.criteria)
-                cv2.drawChessboardCorners(
-                    display_frame, self.chessboard_size, corners_refined, ret_corners)
-                
-                cv2.putText(display_frame, "DETECTED - Press 's' to capture", 
-                           (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
-            else:
-                cv2.putText(display_frame, "Chessboard NOT detected", 
-                           (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
-            
-            cv2.putText(display_frame, f"Captured: {self.images_captured} | Press 'c' to calibrate", 
-                       (10, 60), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 2)
-            
-            cv2.imshow("Live Calibration", display_frame)
-            
-            key = cv2.waitKey(1) & 0xFF
-            
-            if key == ord('s') and ret_corners:
-                # Add to calibration data (don't save to disk)
-                self.objpoints.append(self.objp)
-                self.imgpoints.append(corners_refined)
-                self.images_captured += 1
-                print(f"Captured image {self.images_captured}")
-                
-            elif key == ord('c'):
-                if self.images_captured >= 10:
-                    print(f"\nProceeding to calibration with {self.images_captured} images")
-                    break
-                else:
-                    print(f"\nNeed at least 10 images. Currently: {self.images_captured}")
-                    
-            elif key == ord('q'):
-                print("\nQuitting")
-                return False
-                
-        # Get image size
-        h, w = frame.shape[:2]
-        image_size = (w, h)
-        
-        # Perform calibration
-        return self.perform_calibration(image_size)
-        
     def process_folder(self, folder_path):
         """Process images from existing folder"""
         if not os.path.exists(folder_path):
@@ -553,24 +477,10 @@ class UnifiedCalibrator:
                         if cal == 'y':
                             self.process_folder(self.save_dir)
                             
-            elif choice == '3':  # Live calibration
-                self.display_camera_menu()
-                cam_choice = input("\nEnter choice: ").strip()
-                
-                camera_type = None
-                if cam_choice == '1':
-                    camera_type = "webcam"
-                elif cam_choice == '2' and ROBOMASTER_AVAILABLE:
-                    camera_type = "robomaster"
-                    
-                if camera_type and self.initialize_camera(camera_type):
-                    self.live_calibration_mode()
-                    self.cleanup_camera()
-                    
-            elif choice == '4':  # Settings
+            elif choice == '3':  # Settings
                 self.display_settings_menu()
                 
-            elif choice == '5':  # Exit
+            elif choice == '4':  # Exit
                 print("\nExiting. Goodbye!")
                 break
                 
