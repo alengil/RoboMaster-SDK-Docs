@@ -172,7 +172,7 @@ class UnifiedCalibrator:
             print("Initializing RoboMaster...")
             try:
                 self.ep_robot = robot.Robot()
-                self.ep_robot.initialize(conn_type="sta")
+                self.ep_robot.initialize(conn_type="ap")
                 self.ep_camera = self.ep_robot.camera
                 self.ep_camera.start_video_stream(display=False)
                 print("RoboMaster initialized successfully")
