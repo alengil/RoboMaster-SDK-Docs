@@ -344,7 +344,7 @@ def main():
         # Initialize RoboMaster robot
         print("Connecting to RoboMaster...")
         ep_robot = robot.Robot()
-        ep_robot.initialize(conn_type="sta")
+        ep_robot.initialize(conn_type="ap")
         ep_camera = ep_robot.camera
         
         # Start video stream
